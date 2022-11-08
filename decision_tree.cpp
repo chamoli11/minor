@@ -92,7 +92,9 @@ class DecisionTree {
 		}
 
 		void run(Table table, int nodeIndex) {
-			/**/
+			/* we are firstly seeing that whether class label is all same or not if not then we find attribute row of max gain ratio then we stotes that
+			rows index, after that we check whether 80 percent value of class label is same or not , if it is we declare it as leaf node othewise we start
+			make a tree based on selected attribute after that we do same recurrsion on next tables */
 			if(isLeafNode(table) == true) {
 				tree[nodeIndex].isLeaf = true;
 				tree[nodeIndex].label = table.data.back().back();/*[i][j]*/
@@ -115,29 +117,39 @@ class DecisionTree {
 				tree[nodeIndex].label = majority.first;
 				return;
 			}
-
+			vector<string> types;
+			
 			for(int i=0;i< initialTable.attrValueList[selectedAttrIndex].size(); i++) {
 				string attrValue = initialTable.attrValueList[selectedAttrIndex][i];
-
-				Table nextTable;
-				vector<int> candi = attrValueMap[attrValue];
-				for(int i=0;i<candi.size(); i++) {
-					nextTable.data.push_back(table.data[candi[i]]);
+				bool flag= false;
+				
+				for (int i=0; i<types.size(); i++){
+					int value = strcmp(types[i],attrValue);  
+   					if(value == 0) {
+						flag=true;
+					}
 				}
+				if(flag== false){		
+					Table nextTable;
+					vector<int> candi = attrValueMap[attrValue];
+					for(int i=0;i<candi.size(); i++) {
+						nextTable.data.push_back(table.data[candi[i]]);
+					}
 
-				Node nextNode;
-				nextNode.attrValue = attrValue;
-				nextNode.treeIndex = (int)tree.size();
-				tree[nodeIndex].children.push_back(nextNode.treeIndex);
-				tree.push_back(nextNode);
+					Node nextNode;
+					nextNode.attrValue = attrValue;
+					nextNode.treeIndex = (int)tree.size();
+					tree[nodeIndex].children.push_back(nextNode.treeIndex);
+					tree.push_back(nextNode);
 
-				// for empty table
-				if(nextTable.data.size()==0) {
-					nextNode.isLeaf = true;
-					nextNode.label = getMajorityLabel(table).first;
-					tree[nextNode.treeIndex] = nextNode;
-				} else {
-					run(nextTable, nextNode.treeIndex);
+					// for empty table
+					if(nextTable.data.size()==0) {
+						nextNode.isLeaf = true;
+						nextNode.label = getMajorityLabel(table).first;
+						tree[nextNode.treeIndex] = nextNode;
+					} else {
+						run(nextTable, nextNode.treeIndex);
+					}
 				}
 			}
 		}
